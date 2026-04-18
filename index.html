@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Feeder Bot</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #0f0f0f;
@@ -17,170 +16,83 @@
       align-items: center;
       padding: 2rem 1rem;
     }
-
-    header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    header h1 {
-      font-size: 1.8rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      color: #ffffff;
-    }
-
-    header p {
-      font-size: 0.85rem;
-      color: #888;
-      margin-top: 4px;
-    }
-
+    header { text-align: center; margin-bottom: 2rem; }
+    header h1 { font-size: 1.8rem; font-weight: 600; color: #ffffff; }
+    header p  { font-size: 0.85rem; color: #888; margin-top: 4px; }
     #status-dot {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #444;
-      margin-right: 6px;
-      vertical-align: middle;
-      transition: background 0.3s;
+      display: inline-block; width: 10px; height: 10px;
+      border-radius: 50%; background: #444;
+      margin-right: 6px; vertical-align: middle; transition: background 0.3s;
     }
-
     #status-dot.connected { background: #22c55e; }
-
-    #connect-btn {
-      display: block;
-      margin: 0 auto 2rem;
-      padding: 12px 32px;
-      font-size: 1rem;
-      font-weight: 500;
-      border: none;
-      border-radius: 8px;
-      background: #2563eb;
-      color: white;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+    .ip-row {
+      display: flex; gap: 8px; margin-bottom: 1.5rem;
+      width: 100%; max-width: 480px; align-items: center;
     }
-
-    #connect-btn:hover { background: #1d4ed8; }
-    #connect-btn:active { transform: scale(0.97); }
-    #connect-btn:disabled { background: #444; cursor: default; }
-
+    .ip-row input {
+      flex: 1; padding: 10px 14px; border-radius: 8px;
+      border: 1px solid #333; background: #1a1a1a;
+      color: #f0f0f0; font-size: 0.95rem;
+    }
+    .ip-row button {
+      padding: 10px 20px; border-radius: 8px; border: none;
+      background: #2563eb; color: white; font-size: 0.95rem;
+      font-weight: 500; cursor: pointer; transition: background 0.2s;
+    }
+    .ip-row button:hover { background: #1d4ed8; }
+    .ip-row button:disabled { background: #444; cursor: default; }
     .cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      width: 100%;
-      max-width: 480px;
-      margin-bottom: 1.5rem;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; width: 100%; max-width: 480px; margin-bottom: 1.5rem;
     }
-
     .card {
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
+      background: #1a1a1a; border: 1px solid #2a2a2a;
+      border-radius: 12px; padding: 1rem 1.25rem;
     }
-
-    .card.wide {
-      grid-column: 1 / -1;
-    }
-
+    .card.wide { grid-column: 1 / -1; }
     .card-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #666;
-      margin-bottom: 6px;
+      font-size: 0.7rem; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #666; margin-bottom: 6px;
     }
-
-    .card-value {
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #ffffff;
-      transition: color 0.3s;
-    }
-
-    .card-value.status-feeding  { color: #22c55e; }
-    .card-value.status-ready    { color: #60a5fa; }
-    .card-value.status-paused   { color: #f59e0b; }
-    .card-value.status-stopped  { color: #ef4444; }
-    .card-value.status-idle     { color: #888; }
-    .card-value.status-error    { color: #ef4444; }
-
-    .slots {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
+    .card-value { font-size: 1.4rem; font-weight: 600; color: #ffffff; transition: color 0.3s; }
+    .card-value.status-feeding { color: #22c55e; }
+    .card-value.status-ready   { color: #60a5fa; }
+    .card-value.status-paused  { color: #f59e0b; }
+    .card-value.status-stopped { color: #ef4444; }
+    .card-value.status-idle    { color: #888; }
+    .card-value.status-error   { color: #ef4444; }
+    .slots { display: flex; gap: 8px; margin-top: 8px; }
     .slot-pill {
-      font-size: 0.75rem;
-      padding: 3px 10px;
-      border-radius: 20px;
-      background: #2a2a2a;
-      color: #888;
-      border: 1px solid #333;
-      transition: all 0.2s;
+      font-size: 0.75rem; padding: 3px 10px; border-radius: 20px;
+      background: #2a2a2a; color: #888; border: 1px solid #333; transition: all 0.2s;
     }
-
-    .slot-pill.active {
-      background: #166534;
-      color: #86efac;
-      border-color: #16a34a;
-    }
-
+    .slot-pill.occupied { background: #166534; color: #86efac; border-color: #16a34a; }
     .controls {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      width: 100%;
-      max-width: 480px;
-      margin-bottom: 1.5rem;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; width: 100%; max-width: 480px; margin-bottom: 1.5rem;
     }
-
     .ctrl-btn {
-      padding: 14px;
-      font-size: 1rem;
-      font-weight: 500;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+      padding: 14px; font-size: 1rem; font-weight: 500;
+      border: none; border-radius: 10px; cursor: pointer;
       transition: background 0.2s, transform 0.1s;
     }
-
     .ctrl-btn:active { transform: scale(0.97); }
     .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
-
-    #stop-btn  { background: #ef4444; color: white; }
-    #stop-btn:hover:not(:disabled)  { background: #dc2626; }
-
+    #stop-btn   { background: #ef4444; color: white; }
+    #stop-btn:hover:not(:disabled)   { background: #dc2626; }
     #resume-btn { background: #22c55e; color: white; }
     #resume-btn:hover:not(:disabled) { background: #16a34a; }
-
+    #pause-btn  { background: #f59e0b; color: white; grid-column: 1 / -1; }
+    #pause-btn:hover:not(:disabled)  { background: #d97706; }
     #log {
-      width: 100%;
-      max-width: 480px;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 12px;
-      padding: 1rem;
-      font-size: 0.75rem;
-      color: #666;
-      font-family: monospace;
-      max-height: 140px;
-      overflow-y: auto;
+      width: 100%; max-width: 480px; background: #1a1a1a;
+      border: 1px solid #2a2a2a; border-radius: 12px; padding: 1rem;
+      font-size: 0.75rem; color: #666; font-family: monospace;
+      max-height: 140px; overflow-y: auto;
     }
-
     #log p { margin-bottom: 4px; }
     #log p:last-child { color: #aaa; }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.75rem;
-      color: #444;
-    }
+    footer { margin-top: 2rem; font-size: 0.75rem; color: #444; }
   </style>
 </head>
 <body>
@@ -190,7 +102,10 @@
     <p>Assistive feeding robot — caretaker panel</p>
   </header>
 
-  <button id="connect-btn" onclick="connectBLE()">Connect via Bluetooth</button>
+  <div class="ip-row">
+    <input id="ip-input" type="text" placeholder="ESP32 IP address e.g. 192.168.1.42"/>
+    <button id="connect-btn" onclick="connectWS()">Connect</button>
+  </div>
 
   <div class="cards">
     <div class="card wide">
@@ -216,24 +131,17 @@
   </div>
 
   <div class="controls">
-    <button class="ctrl-btn" id="stop-btn"   onclick="sendCommand('stopped')" disabled>Emergency stop</button>
-    <button class="ctrl-btn" id="resume-btn" onclick="sendCommand('ready')"   disabled>Resume</button>
+    <button class="ctrl-btn" id="stop-btn"   onclick="sendCmd('stop')"   disabled>Emergency stop</button>
+    <button class="ctrl-btn" id="resume-btn" onclick="sendCmd('resume')" disabled>Resume</button>
+    <button class="ctrl-btn" id="pause-btn"  onclick="sendCmd('pause')"  disabled>Pause</button>
   </div>
 
-  <div id="log">
-    <p>Waiting for connection...</p>
-  </div>
+  <div id="log"><p>Enter ESP32 IP address and connect.</p></div>
 
-  <footer>defGonzaloR · feederbot · Web BLE</footer>
+  <footer>defGonzaloR · WWMG-FeederBot</footer>
 
 <script>
-  const SERVICE_UUID  = "12345678-1234-1234-1234-123456789abc";
-  const UTENSIL_UUID  = "12345678-1234-1234-1234-123456789abd";
-  const STATUS_UUID   = "12345678-1234-1234-1234-123456789abe";
-  const SESSION_UUID  = "12345678-1234-1234-1234-123456789abf";
-
-  let utensilChar, statusChar, sessionChar;
-  let device;
+  let ws;
 
   function log(msg) {
     const el = document.getElementById("log");
@@ -245,108 +153,69 @@
 
   function setConnected(connected) {
     document.getElementById("status-dot").className = connected ? "connected" : "";
-    document.getElementById("connect-btn").textContent = connected ? "Disconnect" : "Connect via Bluetooth";
+    document.getElementById("connect-btn").textContent = connected ? "Disconnect" : "Connect";
     document.getElementById("stop-btn").disabled   = !connected;
     document.getElementById("resume-btn").disabled = !connected;
+    document.getElementById("pause-btn").disabled  = !connected;
   }
 
-  function updateUtensil(val) {
-    document.getElementById("utensil-val").textContent = val || "—";
-    const slots = ["Fork", "Spoon", "Knife"];
-    slots.forEach(s => {
-      const el = document.getElementById("slot-" + s.toLowerCase());
-      if (val === s) {
-        el.classList.remove("active");
-      } else {
-        el.classList.add("active");
-      }
-    });
+  function updateUI(data) {
+    const uEl = document.getElementById("utensil-val");
+    const sEl = document.getElementById("status-val");
+
+    uEl.textContent = data.utensil || "—";
+    sEl.textContent = data.status  || "—";
+    sEl.className   = "card-value status-" + (data.status || "").toLowerCase();
+
+    document.getElementById("session-val").textContent = data.session || "—";
+
+    document.getElementById("slot-fork").className  = "slot-pill" + (data.fork  ? " occupied" : "");
+    document.getElementById("slot-spoon").className = "slot-pill" + (data.spoon ? " occupied" : "");
+    document.getElementById("slot-knife").className = "slot-pill" + (data.knife ? " occupied" : "");
   }
 
-  function updateStatus(val) {
-    const el = document.getElementById("status-val");
-    el.textContent = val || "—";
-    el.className = "card-value status-" + (val || "").toLowerCase();
-  }
-
-  function updateSession(val) {
-    document.getElementById("session-val").textContent = val || "—";
-  }
-
-  async function connectBLE() {
-    if (device && device.gatt.connected) {
-      device.gatt.disconnect();
+  function connectWS() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.close();
       setConnected(false);
       log("Disconnected");
       return;
     }
 
-    try {
-      log("Scanning for Feeder Bot...");
-      device = await navigator.bluetooth.requestDevice({
-        filters: [{ name: "Feeder Bot" }],
-        optionalServices: [SERVICE_UUID]
-      });
+    const ip = document.getElementById("ip-input").value.trim();
+    if (!ip) { log("Enter an IP address first"); return; }
 
-      device.addEventListener("gattserverdisconnected", () => {
-        setConnected(false);
-        log("Device disconnected");
-      });
+    log("Connecting to ws://" + ip + ":81 ...");
+    ws = new WebSocket("ws://" + ip + ":81");
 
-      const server  = await device.gatt.connect();
-      const service = await server.getPrimaryService(SERVICE_UUID);
-
-      utensilChar = await service.getCharacteristic(UTENSIL_UUID);
-      statusChar  = await service.getCharacteristic(STATUS_UUID);
-      sessionChar = await service.getCharacteristic(SESSION_UUID);
-
-      await utensilChar.startNotifications();
-      utensilChar.addEventListener("characteristicvaluechanged", e => {
-        const val = new TextDecoder().decode(e.target.value);
-        updateUtensil(val);
-        log("Utensil: " + val);
-      });
-
-      await statusChar.startNotifications();
-      statusChar.addEventListener("characteristicvaluechanged", e => {
-        const val = new TextDecoder().decode(e.target.value);
-        updateStatus(val);
-        log("Status: " + val);
-      });
-
-      await sessionChar.startNotifications();
-      sessionChar.addEventListener("characteristicvaluechanged", e => {
-        const val = new TextDecoder().decode(e.target.value);
-        updateSession(val);
-      });
-
-      const initialUtensil = new TextDecoder().decode(
-        await utensilChar.readValue());
-      const initialStatus  = new TextDecoder().decode(
-        await statusChar.readValue());
-      const initialSession = new TextDecoder().decode(
-        await sessionChar.readValue());
-
-      updateUtensil(initialUtensil);
-      updateStatus(initialStatus);
-      updateSession(initialSession);
-
+    ws.onopen = () => {
       setConnected(true);
       log("Connected to Feeder Bot");
+    };
 
-    } catch (err) {
-      log("Error: " + err.message);
-    }
+    ws.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        updateUI(data);
+      } catch(err) {
+        log("Parse error: " + err.message);
+      }
+    };
+
+    ws.onclose = () => {
+      setConnected(false);
+      log("Connection closed");
+    };
+
+    ws.onerror = () => {
+      log("Connection error — check IP and that ESP32 is on same network");
+    };
   }
 
-  async function sendCommand(cmd) {
-    if (!statusChar) return;
-    try {
-      const encoder = new TextEncoder();
-      await statusChar.writeValue(encoder.encode(cmd + "\n"));
+  function sendCmd(cmd) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(cmd);
       log("Sent: " + cmd);
-    } catch (err) {
-      log("Send error: " + err.message);
     }
   }
 </script>
